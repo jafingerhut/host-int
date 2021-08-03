@@ -8,6 +8,7 @@
  * several user space programs that interact with the EBPF programs,
  * e.g. via EBPF maps and perf events. */
 
+#include <linux/bpf.h>
 #include "intmd_headers.h"
 
 #ifndef __packed
@@ -61,7 +62,8 @@ struct __attribute__((__packed__)) flow_key {
     __u8 proto;
 };
 
-struct __attribute__((__packed__)) sink_flow_stats_datarec {
+struct sink_flow_stats_datarec {
+    struct bpf_spin_lock lock;
     __u32 src_node_id;
     __u16 src_port;
     __u32 sink_node_id;

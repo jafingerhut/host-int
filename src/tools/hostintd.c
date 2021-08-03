@@ -490,7 +490,7 @@ void pkt_drop_stats_collect(size_t timer_id, void *params) {
     // while(bpf_map_get_next_key_and_delete(&flow_gap_map_fd, prev_key, &key,
     // &delete_previous) == 0) {
     while (bpf_map_get_next_key(flow_stats_map_fd, prev_key, &key) == 0) {
-        if (bpf_map_lookup_elem(flow_stats_map_fd, &key, &value) < 0) {
+        if (bpf_map_lookup_elem_flags(flow_stats_map_fd, &key, &value,BPF_F_LOCK) < 0) {
             EPRT("failed to fetch elem from sink flow_stats_map_fd\n");
             break;
         }
@@ -519,7 +519,7 @@ void pkt_drop_stats_collect(size_t timer_id, void *params) {
                 value.gap_tail_seq_num = 0;
                 value.gap_pkt_count = 0;
                 int res = bpf_map_update_elem(flow_stats_map_fd, &key, &value,
-                                              BPF_EXIST);
+                                              BPF_EXIST | BPF_F_LOCK);
                 if (res < 0) {
                     EPRT("Failed to update elem in sink flow_stats_map. err "
                          "code: %i\n",

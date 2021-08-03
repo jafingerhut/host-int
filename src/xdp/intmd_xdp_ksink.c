@@ -263,11 +263,13 @@ int sink_func(struct xdp_md *ctx) {
             generate_int_report = TRUE;
         }
     } else {
+        bpf_spin_lock(&flow_stats_rec->lock);
         if (flow_stats_rec->latency_bucket_ns != latency_bucket_ns) {
             generate_int_report = TRUE;
         }
         flow_stats_rec->latency_bucket_ns = latency_bucket_ns;
         update_flow_stats_gap_data(flow_stats_rec, pkt_seq_num, curr_ts);
+        bpf_spin_unlock(&flow_stats_rec->lock);
         // TODO: Should there be a call to
         // bpf_map_update_elem() here to update the value
         // flow_stats_rec for the map entry that was matched?
